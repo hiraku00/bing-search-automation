@@ -73,24 +73,31 @@ def ask_to_resume():
         elif choice in ['no', 'n']:
             return False
 
-def get_position():
-    """検索ボックスの位置をユーザーにクリックさせて取得する。確認付き."""
-    print("検索ボックスの位置にマウスを移動してください。")
+def get_positions():
+    """検索ボックスの位置を2回取得する。"""
+    print("1回目の検索ボックスの位置にマウスを移動してください。")
     input("準備ができたらEnterキーを押してください...")
-    position = pyautogui.position()
-    print(f"取得した座標: {position}")
-    return position
+    pos1 = pyautogui.position()
+    print(f"1回目の座標: {pos1}")
 
-def search_keyword(keyword, search_box_pos, is_first_search):
+    print("\n2回目の検索ボックスの位置（フォーカス後）にマウスを移動してください。")
+    input("準備ができたらEnterキーを押してください...")
+    pos2 = pyautogui.position()
+    print(f"2回目の座標: {pos2}")
+    return pos1, pos2
+
+def search_keyword(keyword, pos1, pos2, is_first_search):
     """検索ボックスにキーワードを入力して検索を実行"""
-    # アプリケーション(iPhone Mirroring)をアクティブ化
-    pyautogui.click(search_box_pos)
-    time.sleep(0.3)
-    # 検索ボックスをクリック
-    pyautogui.click(search_box_pos)
+    # 1度目のクリック
+    pyautogui.click(pos1)
+    # 2秒ほど間を置いて
+    time.sleep(2)
+    # 2度目のクリック
+    pyautogui.click(pos2)
     time.sleep(0.5)
-    # 検索ボックスの一番うしろをクリック
-    pyautogui.click(search_box_pos)
+
+    # 1番後ろにカーソルを当てる
+    pyautogui.press('end')
     time.sleep(0.4)
 
     if is_first_search:
@@ -137,8 +144,8 @@ if __name__ == "__main__":
     # 設定を適用（プレフィックス文字を含む）
     configure_settings(mode, prefix_char)
 
-    print("検索ボックスの位置をクリックしてください。")
-    search_box_position = get_position()
+    print("検索ボックスの位置を取得します。")
+    pos1, pos2 = get_positions()
 
     pyautogui.PAUSE = 0  # 各操作間の待機時間を0に設定
 
@@ -167,7 +174,7 @@ if __name__ == "__main__":
         #         exit()
 
         # 検索を実行
-        search_keyword(current_keyword, search_box_position, is_first_search)
+        search_keyword(current_keyword, pos1, pos2, is_first_search)
         print(f"検索中 ({search_count + 1:02d}/{MAX_SEARCHES}): {current_keyword}")
 
         # 初回検索フラグをオフに
