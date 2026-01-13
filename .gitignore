@@ -13,3 +13,7 @@ __pycache__/
 .env
 venv/
 .venv/
+
+# Project specific
+memo.md
+old/
