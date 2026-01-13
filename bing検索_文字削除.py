@@ -88,13 +88,21 @@ def get_positions():
 
 def search_keyword(keyword, pos1, pos2, is_first_search):
     """検索ボックスにキーワードを入力して検索を実行"""
-    # 1度目のクリック
-    pyautogui.click(pos1)
-    # 2秒ほど間を置いて
-    time.sleep(2)
-    # 2度目のクリック
-    pyautogui.click(pos2)
-    time.sleep(0.5)
+    if is_first_search:
+        # 初回検索は2つめの座標を2回クリック（フォーカスを当てるため）
+        pyautogui.click(pos2)
+        time.sleep(0.5)
+        pyautogui.click(pos2)
+        time.sleep(0.5)
+    else:
+        # 2回目以降は1つめの座標を2回クリック
+        pyautogui.click(pos1)
+        time.sleep(0.5)
+        pyautogui.click(pos1)
+        time.sleep(0.5)
+        # その後2つめの座標をクリック
+        pyautogui.click(pos2)
+        time.sleep(0.5)
 
     # 1番後ろにカーソルを当てる
     pyautogui.press('end')
