@@ -91,23 +91,19 @@ def search_keyword(keyword, pos1, pos2, is_first_search):
     if is_first_search:
         # 初回検索は2つめの座標を2回クリック（フォーカスを当てるため）
         pyautogui.click(pos2)
-        time.sleep(0.4)
+        time.sleep(0.3)
         pyautogui.click(pos2)
-        time.sleep(0.4)
+        time.sleep(0.3)
     else:
         # 2回目以降は1つめの座標を2回クリック
         pyautogui.click(pos1)
-        time.sleep(0.4)
+        time.sleep(0.3)
         pyautogui.click(pos1)
-        time.sleep(0.4)
+        time.sleep(0.3)
         # その後2つめの座標をクリック
         pyautogui.click(pos2)
-        time.sleep(0.4)
+        time.sleep(0.3)
         
-        # 2回目以降のみ、1番後ろにカーソルを当てる
-        pyautogui.press('end')
-        time.sleep(0.4)
-
     if is_first_search:
         # 初回はフォームをクリア
         pyautogui.hotkey('command', 'a')  # 全選択
