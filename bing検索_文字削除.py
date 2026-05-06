@@ -11,18 +11,30 @@ MAX_SEARCHES = None
 FIXED_KEYWORD = None
 
 def select_execution_mode():
-    """実行モード（ブラウザ用/スマホ用）を選択させる"""
+    """実行モード（ブラウザ用/スマホ用/カスタム）を選択させる"""
     print("実行モードを選択してください:")
-    print("1: ブラウザ用")
-    print("2: スマホ用")
+    print("1: ブラウザ用 (30回)")
+    print("2: スマホ用 (20回)")
+    print("3: 任意の回数を指定")
     while True:
-        choice = input("選択してください (1または2): ").strip()
+        choice = input("選択してください (1, 2 または 3): ").strip()
         if choice == '1':
-            return 'browser'
+            return 'browser', 30
         elif choice == '2':
-            return 'mobile'
+            return 'mobile', 20
+        elif choice == '3':
+            while True:
+                try:
+                    count_str = input("実行回数を入力してください: ").strip()
+                    count = int(count_str)
+                    if count > 0:
+                        return 'custom', count
+                    else:
+                        print("1以上の数字を入力してください。")
+                except ValueError:
+                    print("数字を入力してください。")
         else:
-            print("1または2で選択してください。")
+            print("1, 2 または 3 で選択してください。")
 
 def get_prefix_character():
     """検索キーワードの先頭に追加する1文字を入力させる"""
@@ -33,36 +45,30 @@ def get_prefix_character():
         else:
             print("1文字のみ入力してください。")
 
-def configure_settings(mode, prefix_char):
+def configure_settings(mode, prefix_char, custom_count=None):
     """選択されたモードに応じて設定を変更し、キーワードの先頭に文字を追加"""
     global MAX_SEARCHES, FIXED_KEYWORD
-    if mode == 'browser':
-        base_keyword = "vibe coding 開発"
-        # 90ポイント
-        MAX_SEARCHES = 30
-        base_keyword2 = "............................."
-
-        # # 180ポイント
-        # MAX_SEARCHES = 60
-        # base_keyword2 = "..........................................................."
-
-        FIXED_KEYWORD = f"{prefix_char} {base_keyword} {base_keyword2}"
-        print(f"ブラウザ用設定: 検索回数={MAX_SEARCHES}, キーワード='{FIXED_KEYWORD}'")
-    elif mode == 'mobile':
-        base_keyword = "vibe coding 開発"
-        # 60ポイント
-        MAX_SEARCHES = 20
-        base_keyword2 = "..................."
-
-        # # 120ポイント
-        # MAX_SEARCHES = 40
-        # base_keyword = "vibe coding 開発"
-        # base_keyword2 = "......................................."
-
-        FIXED_KEYWORD = f"{prefix_char} {base_keyword} {base_keyword2}"
-        print(f"スマホ用設定: 検索回数={MAX_SEARCHES}, キーワード='{FIXED_KEYWORD}'")
+    base_keyword = "vibe coding 開発"
+    
+    # 選択肢に応じた回数の設定
+    mode_names = {
+        'browser': ('ブラウザ用', 30),
+        'mobile': ('スマホ用', 20),
+        'custom': ('カスタム', custom_count)
+    }
+    
+    if mode in mode_names:
+        display_name, MAX_SEARCHES = mode_names[mode]
     else:
         raise ValueError("無効なモードです")
+
+    # 指定された回数分、1文字ずつ削除しながら検索できるように十分な長さのドットを追加
+    # (キーワード本体 + プレフィックス + 余裕分)
+    dots_needed = max(0, MAX_SEARCHES - len(base_keyword) - 2)
+    base_keyword2 = "." * (dots_needed + 5)
+
+    FIXED_KEYWORD = f"{prefix_char} {base_keyword} {base_keyword2}"
+    print(f"{display_name}設定: 検索回数={MAX_SEARCHES}, キーワード='{FIXED_KEYWORD}'")
 
 def ask_to_resume():
     """コンソールで再開するかどうかを尋ねる."""
@@ -91,32 +97,32 @@ def search_keyword(keyword, pos1, pos2, is_first_search):
     if is_first_search:
         # 初回検索は2つめの座標を2回クリック（フォーカスを当てるため）
         pyautogui.click(pos2)
-        time.sleep(0.3)
+        time.sleep(0.4)
         pyautogui.click(pos2)
-        time.sleep(0.3)
+        time.sleep(0.4)
     else:
         # 2回目以降は1つめの座標を2回クリック
         pyautogui.click(pos1)
-        time.sleep(0.3)
+        time.sleep(0.4)
         pyautogui.click(pos1)
-        time.sleep(0.3)
+        time.sleep(0.4)
         # その後2つめの座標をクリック
         pyautogui.click(pos2)
-        time.sleep(0.3)
+        time.sleep(0.4)
         
     if is_first_search:
         # 初回はフォームをクリア
         pyautogui.hotkey('command', 'a')  # 全選択
         pyautogui.press('backspace')
-        time.sleep(0.3)  # クリアが完了するのを待つ
+        time.sleep(0.4)  # クリアが完了するのを待つ
 
         # 初回はクリップボードにコピーしてペースト
         pyperclip.copy(keyword)
-        time.sleep(0.3)  # コピーが完了するのを待つ
+        time.sleep(0.4)  # コピーが完了するのを待つ
 
         # ペーストを実行
         pyautogui.hotkey('command', 'v')
-        time.sleep(0.3)  # ペーストが完了するのを待つ
+        time.sleep(0.4)  # ペーストが完了するのを待つ
 
         # # ペーストが正しく行われたか確認
         # pyautogui.hotkey('command', 'a')  # 全選択
@@ -131,7 +137,7 @@ def search_keyword(keyword, pos1, pos2, is_first_search):
         # 2回目以降はバックスペースで1文字削除
         pyautogui.press('backspace')
 
-    time.sleep(0.3)
+    time.sleep(0.4)
     pyautogui.press('enter')
 
     # ランダムな待ち時間 (5~7秒)
@@ -140,13 +146,13 @@ def search_keyword(keyword, pos1, pos2, is_first_search):
 
 if __name__ == "__main__":
     # 実行モードを選択して設定を適用
-    mode = select_execution_mode()
+    mode, count = select_execution_mode()
 
     # プレフィックス文字を入力
     prefix_char = get_prefix_character()
 
     # 設定を適用（プレフィックス文字を含む）
-    configure_settings(mode, prefix_char)
+    configure_settings(mode, prefix_char, count)
 
     print("検索ボックスの位置を取得します。")
     pos1, pos2 = get_positions()
