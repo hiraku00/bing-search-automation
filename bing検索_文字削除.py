@@ -63,9 +63,7 @@ def configure_settings(mode, prefix_char, custom_count=None):
         raise ValueError("無効なモードです")
 
     # 指定された回数分、1文字ずつ削除しながら検索できるように十分な長さのドットを追加
-    # (キーワード本体 + プレフィックス + 余裕分)
-    dots_needed = max(0, MAX_SEARCHES - len(base_keyword) - 2)
-    base_keyword2 = "." * (dots_needed + 5)
+    base_keyword2 = "." * MAX_SEARCHES
 
     FIXED_KEYWORD = f"{prefix_char} {base_keyword} {base_keyword2}"
     print(f"{display_name}設定: 検索回数={MAX_SEARCHES}, キーワード='{FIXED_KEYWORD}'")
